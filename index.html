@@ -455,17 +455,18 @@
             <div class="contact-item"><strong>Obszar działania</strong><br />Białystok i okolice</div>
           </div>
         </div>
-        <div class="contact-form">
+        <form class="contact-form" id="contactForm">
           <div class="eyebrow" style="background:rgba(17,24,39,0.05); border:1px solid rgba(17,24,39,0.08); color:#2563eb;">Formularz kontaktowy</div>
           <h3 style="font-size:30px; margin:0 0 18px; font-weight:900;">Zostaw wiadomość</h3>
           <div class="fields">
-            <input class="field" placeholder="Imię i nazwisko" />
-            <input class="field" placeholder="Adres e-mail" />
-            <input class="field" placeholder="Numer telefonu" />
-            <textarea rows="5" placeholder="Napisz, czego potrzebujesz: konstrukcja, schody, spawanie, montaż..."></textarea>
-            <button class="btn btn-primary" type="button">Wyślij zapytanie</button>
+            <input class="field" id="name" name="name" placeholder="Imię i nazwisko" autocomplete="name" required />
+            <input class="field" id="email" name="email" type="email" placeholder="Adres e-mail" autocomplete="email" required />
+            <input class="field" id="phone" name="phone" type="tel" placeholder="Numer telefonu" autocomplete="tel" />
+            <textarea id="message" name="message" rows="5" placeholder="Napisz, czego potrzebujesz: konstrukcja, schody, spawanie, montaż..." required></textarea>
+            <button class="btn btn-primary" id="submitButton" type="submit">Wyślij zapytanie</button>
+            <p id="formStatus" style="margin:8px 0 0; font-size:14px; color:#374151;"></p>
           </div>
-        </div>
+        </form>
       </div>
     </section>
 
@@ -503,6 +504,51 @@
               menuToggle.textContent = '☰';
             }
           });
+        });
+      }
+
+      const CONTACT_EMAIL = 'tymoteusz.gwacki@gmail.com';
+      const contactForm = document.querySelector('#contactForm');
+      const formStatus = document.querySelector('#formStatus');
+      const submitButton = document.querySelector('#submitButton');
+
+      if (contactForm && formStatus && submitButton) {
+        contactForm.addEventListener('submit', (event) => {
+          event.preventDefault();
+
+          const name = document.querySelector('#name')?.value.trim() || '';
+          const email = document.querySelector('#email')?.value.trim() || '';
+          const phone = document.querySelector('#phone')?.value.trim() || '';
+          const message = document.querySelector('#message')?.value.trim() || '';
+
+          if (!name || !email || !message) {
+            formStatus.textContent = 'Uzupełnij imię, adres e-mail i wiadomość.';
+            return;
+          }
+
+          if (CONTACT_EMAIL === 'twoj-adres@domena.pl') {
+            formStatus.textContent = 'Wstaw docelowy adres e-mail w kodzie: CONTACT_EMAIL.';
+            return;
+          }
+
+          const subject = encodeURIComponent(`Zapytanie ze strony Ferrobud — ${name}`);
+          const body = encodeURIComponent(
+`Imię i nazwisko: ${name}
+Adres e-mail: ${email}
+Numer telefonu: ${phone || '-'}
+
+Treść wiadomości:
+${message}`
+          );
+
+          submitButton.disabled = true;
+          formStatus.textContent = 'Otwieram program pocztowy z gotową wiadomością...';
+          window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+
+          setTimeout(() => {
+            submitButton.disabled = false;
+            formStatus.textContent = 'Jeśli okno poczty się nie otworzyło, sprawdź czy masz skonfigurowaną aplikację pocztową na urządzeniu.';
+          }, 800);
         });
       }
     </script>
